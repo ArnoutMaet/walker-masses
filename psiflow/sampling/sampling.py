@@ -241,11 +241,17 @@ def setup_system_template(
         velocities.text = " 300 "
     initialize.append(velocities)
 
+    if walkers[0].masses is not None:
+        beads = ET.Element("beads", natoms=str(len(walkers[0].start)), nbeads=str(walkers[0].nbeads))   # assumes that each walker has the same number of atoms and beads
+        m = ET.Element("m")
+        m.text = str(walkers[0].masses).replace("[", "[ ").replace("]", " ]")   # spaces important?
+        beads.append(m)
     system = ET.Element("system", prefix="walker-INDEX")
     system.append(initialize)
     system.append(motion)
     system.append(ensemble)
     system.append(forces)
+    system.append(beads)
 
     template = ET.Element("template")
     template.append(system)

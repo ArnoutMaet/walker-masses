@@ -54,6 +54,7 @@ class Walker:
     coupling: Optional[Coupling]
     metadynamics: Optional[Metadynamics]
     order_parameter: Optional[OrderParameter]
+    masses: Union[list, float, None]
 
     def __init__(
         self,
@@ -62,6 +63,7 @@ class Walker:
         state: Union[Geometry, AppFuture, None] = None,
         temperature: Optional[float] = 300,
         pressure: Optional[float] = None,
+        masses: Union[list, float, None] = None,
         nbeads: int = 1,
         timestep: float = 0.5,
         metadynamics: Optional[Metadynamics] = None,
@@ -81,6 +83,11 @@ class Walker:
         self.temperature = temperature
         self.pressure = pressure
         self.nbeads = nbeads
+        if isinstance(masses, float):   # if float is provided, atomic masses are rescaled with this value
+            old_masses = start.atomic_masses
+            masses = list(masses * old_masses)
+        self.masses = masses
+        assert (len(self.masses) == len(self.start)) or (self.masses is None), "A mass must be provided for each atom in the geometry"
         self.timestep = timestep
 
         self.metadynamics = metadynamics
@@ -109,6 +116,7 @@ class Walker:
                 temperature=self.temperature,
                 pressure=self.pressure,
                 nbeads=self.nbeads,
+                masses=self.masses,
                 timestep=self.timestep,
                 metadynamics=metadynamics,
             )  # no coupling
